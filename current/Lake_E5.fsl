@@ -1,0 +1,19 @@
+Final Storage Label File for:  E5LAKE_2015.csi
+Date:  6/30/2015
+Time:  17:01:51
+
+106 Output_Table   5.00 Min
+1 106 L
+2 Year_RTM  L
+3 Day_RTM  L
+4 Hour_Minute_RTM  L
+5 BatteryV_MIN  L
+6 AirTemp_AVG  L
+7 RH_AVG  L
+8 WindSpeed_S_WVT  L
+9 WindDir_D1_WVT  L
+10 WindDir_SD1_WVT  L
+11 WindSpeed_MAX  L
+
+
+Estimated Total Final Storage Locations used per day 3168

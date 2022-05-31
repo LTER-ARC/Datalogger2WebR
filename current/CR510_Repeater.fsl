@@ -1,0 +1,14 @@
+Final Storage Label File for:  RepeaterCR510.csi
+Date:  6/9/2012
+Time:  13:35:05
+
+103 Output_Table   1.00 Min
+1 103 L
+2 Year_RTM  L
+3 Day_RTM  L
+4 Hour_Minute_RTM  L
+5 REFTEMP_AVG  L
+6 VOLTS_AVG  L
+
+
+Estimated Total Final Storage Locations used per day 8640
