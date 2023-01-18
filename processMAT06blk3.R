@@ -79,8 +79,8 @@ p1 <- ggplot(met_data) +
         legend.position = "top")
 p2 <- ggplot(met_data) +
   theme_bw() +
-  geom_line(aes(x=timestamp,y=rhct,color="control RH"),size=.1,linetype="twodash")+
-  geom_line(aes(x=timestamp,y=rh_gh,color="greenhouse RH"),size=.1,linetype="dotted")+
+  geom_line(aes(x=timestamp,y=rhct,color="control RH"),linewidth=.1,linetype="twodash")+
+  geom_line(aes(x=timestamp,y=rh_gh,color="greenhouse RH"),linewidth=.1,linetype="dotted")+
   scale_x_datetime()+
   scale_color_manual(values = c(
     "control RH" = "blue",
@@ -115,7 +115,7 @@ sp3 <- soil_data %>% select(timestamp,starts_with("t107")) %>%
        y = "Celsius ",
        color = 'Legend')+
   theme_bw() +
-  geom_line(aes(color = key),size=.1)
+  geom_line(aes(color = key),linewidth=.1)
 
 #  the dynamicTicks needs to be true for the buttons to show
 # autorange needs to be FALSE for range to work
@@ -137,35 +137,60 @@ xax<- list(
       list(step = "all")
     )),
   rangeslider = list(type = "date", thickness=0.05))
+# Create a list of arguments for the annotation layout to add titles to the subplots
+anno_agr <-list(x = .5,
+                text = "",
+                y = 1,
+                yref = "paper",
+                xref = "paper",
+                xanchor = "center",
+                yanchor = "top",
+                yshift = 20,
+                showarrow = FALSE,
+                font = list(size = 15))
 
+# Create 3 plots for the panel
+anno_agr$text <- "Air Temperature"
 # Create 3 plots for the panel
 p1_p <- ggplotly(p1,dynamicTicks = T) %>% 
         layout(xaxis= xax,
-               yaxis =list(zerolinewidth = .1)) %>% 
-  partial_bundle()
-p2_p <- ggplotly(p2,dynamicTicks = T) %>%
-        layout(xaxis= xax) %>%
+               yaxis =list(zerolinewidth = .1, 
+                           fixedrange = FALSE),
+               annotations = anno_agr) %>% 
   partial_bundle()
 
+anno_agr$text <- "Relative Humidty"
+p2_p <- ggplotly(p2,dynamicTicks = T) %>%
+        layout(xaxis= xax,
+               yaxis = (list(fixedrange = FALSE)),
+               annotations = anno_agr) %>%
+  partial_bundle()
+
+anno_agr$text <- "Soil Temperatures"
 sp3_p <- ggplotly(sp3,dynamicTicks = T) %>% 
   layout(xaxis=  list( 
     autorange=F,
     range= list(min_date, max_date)),
-    yaxis = list(autorange=F,range = c(-15, 15))
-  ) %>% 
+    yaxis = list(autorange=F,range = c(-15, 15),
+                 fixedrange= FALSE),
+    annotations = anno_agr) %>% 
   partial_bundle()
 
-p4_p <- ggplotly(p3,dynamicTicks = T) %>% 
-  layout(xaxis= list( 
-    autorange=F,range= list(min_date, max_date))
-  ) %>% 
+anno_agr$text <- "Battery"
+p4_p <- ggplotly(p3, dynamicTicks = T) %>%
+  layout(
+    xaxis = list(autorange = F,
+                 range = list(min_date, max_date)),
+    yaxis = list(fixedrange = FALSE),
+    annotations = anno_agr) %>%
   partial_bundle()
 
 
 p <- subplot(p2_p,p1_p,sp3_p,p4_p, nrows=4, shareX = TRUE,titleY = T,
-             heights = c(.20,.3,.3,.2), which_layout = 2)
-#p <- subplot(p3_p,p2_p,p1_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.2,.6))
-htmlwidgets::saveWidget(p, "mat2006Blk3met.html", title = "MAT06 Blk 4")
+             heights = c(.20,.3,.3,.2), which_layout = 2) %>% 
+  layout(title = 'MAT2006-Blk3 CT_GH Air/Rh/Soil Temperatures',margin = 0.01)
+  
+htmlwidgets::saveWidget(p, "mat2006Blk3met.html", title = "MAT06 Blk 3")
 
 #Soil
 sp1 <- soil_data %>% select(timestamp,starts_with("ct")) %>%
@@ -173,42 +198,44 @@ sp1 <- soil_data %>% select(timestamp,starts_with("ct")) %>%
   ggplot(data=.,aes(x=timestamp, y = value,color=key)) +
   scale_x_datetime()+
   coord_cartesian(ylim = c(-15,15)) +
-  labs(title ="MAT2006-Blk3 CT Soil Temperature",
-       x = "Date",
+  labs(x = "Date",
        y = "Celsius ",
        color = 'Legend')+
   theme_bw() +
-  geom_line(aes(color = key),size=.1)
+  geom_line(aes(color = key),linewidth=.1)
 
 sp2 <- soil_data %>% select(timestamp,starts_with("np")) %>%
   gather("key", "value", -timestamp) %>%
   ggplot(data=., aes(x=timestamp, y = value,color=key)) +
   scale_x_datetime()+
-  labs(title ="MAT206-Blk3 NP Soil Temperature",
-       x = "Date",
+  labs(x = "Date",
        y = "Celsius ",
        color = 'Legend')+
   coord_cartesian(ylim = c(-15,15)) +
   theme_bw() +
-  geom_line(aes(color = key),size=.1)
+  geom_line(aes(color = key),linewidth=.1) +
+  theme(plot.title = element_text(hjust = 1),
+        axis.title.y = element_markdown(color = "black", size = 8),
+        legend.position = "top")
 
-
+anno_agr$text <- "Control Soil"
 sp1_p <- ggplotly(sp1,dynamicTicks = T) %>% 
-  layout(xaxis= list( 
-    autorange=F,
-    range= list(min_date, max_date)),
-    yaxis = list(autorange=F,range = c(-15, 15))
-  ) %>% 
-  partial_bundle()
-sp2_p <- ggplotly(sp2,dynamicTicks = T) %>% 
-  layout(xaxis=  list( 
-    autorange=F,
-    range= list(min_date, max_date)),
-    yaxis = list(autorange=F,range = c(-15, 15))
-  ) %>% 
+  layout(xaxis= xax,
+    yaxis = list(autorange=F,range = c(-15, 15),
+                 fixedrange=FALSE),
+    annotations = anno_agr) %>% 
   partial_bundle()
 
-p <- subplot(sp1_p,sp2_p,sp3_p, nrows=3, shareX = TRUE,titleY = T)
+anno_agr$text <- "NP Soil"
+sp2_p <- ggplotly(sp2,dynamicTicks = T) %>% 
+  layout(xaxis=  xax,
+    yaxis = list(autorange=F,range = c(-15, 15),
+                 fixedrange =FALSE),
+    annotations = anno_agr) %>% 
+  partial_bundle()
+
+p <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T) %>% 
+  layout(title = 'MAT206-Blk3 NP Soil Temperature',margin = 0.01)
 htmlwidgets::saveWidget(p, "mat2006Blk3soil.html", title = "MAT06 Soil")
 
 
