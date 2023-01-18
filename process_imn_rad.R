@@ -138,6 +138,7 @@ p4_p <- ggplotly(p4,dynamicTicks = T) %>%
   ) %>% 
   partial_bundle()
 
-p <- subplot(p1_p,p2_p,p3_p,p4_p, nrows=4, shareX = TRUE,titleY = T,heights = c(.3,.3,.3,.1))
+p <- subplot(p1_p,p2_p,p3_p,p4_p, nrows=4, shareX = TRUE,titleY = T,
+             heights = c(.3,.3,.3,.1))
 
-htmlwidgets::saveWidget(p, "imnav_rad.html")
+htmlwidgets::saveWidget(p, "imnav_rad.html",title = "Imnaviat solar station")
