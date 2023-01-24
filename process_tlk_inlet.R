@@ -137,32 +137,28 @@ if(html_file_date < dat_file_date) {
   anno_agr$text <- "Stage Height"  
   p1_p <- ggplotly(p1,dynamicTicks = T) %>% 
     layout(xaxis= xax,
-           yaxis =list(zerolinewidth = .1,
-                       fixedrange = FALSE),
+           yaxis =list(fixedrange = FALSE),
            annotations = anno_agr) %>% 
     partial_bundle()
   
   anno_agr$text <- "Water Temperature"  
   p2_p <- ggplotly(p2,dynamicTicks = T) %>% 
     layout(xaxis= xax,
-           yaxis =list(zerolinewidth = .1,
-                       fixedrange = FALSE),
+           yaxis =list(fixedrange = FALSE),
            annotations = anno_agr) %>%
     partial_bundle()
   
   anno_agr$text <- "Conductivity"  
   p3_p <- ggplotly(p3,dynamicTicks = T) %>% 
     layout(xaxis= xax,
-           yaxis =list(zerolinewidth = .1,
-                       rangemode="nonnegative",
+           yaxis =list(rangemode="nonnegative",
                        fixedrange = FALSE),
            annotations = anno_agr) %>%
     partial_bundle()
   anno_agr$text <- "Battery"  
   p4_p <- ggplotly(p4,dynamicTicks = T) %>% 
     layout(xaxis= xax,
-           yaxis =list(zerolinewidth = .1,
-                       fixedrange = FALSE),
+           yaxis =list(fixedrange = FALSE),
            annotations = anno_agr) %>%
     partial_bundle()
   
