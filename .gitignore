@@ -9,3 +9,4 @@ processall_stations.Rtxt
 lib
 *.FSL
 *.sh
+*.dat
