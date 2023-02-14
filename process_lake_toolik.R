@@ -22,10 +22,13 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+# Check if script is running on the website. If so setwd else use the project wd
+web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
+if (dir.exists(web_logger_dir)) {
+  setwd(web_logger_dir)
+}
 # Functions --------------------------------------------------------------
-setwd("/www/arcdeims7/sites/default/files/data/datalogger")
 source("importCSdata.r")
-
 
 #-------------------------------------------------------------------------
 
@@ -37,8 +40,7 @@ html_tabl_2 <- "./tlk_lake_tc.html"
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
 html_file_date <-file.mtime(html_tabl_1)
-if(is.na(html_file_date)) {html_file_date <-0}
-
+if(is.na(html_file_date)) {html_file_date <-0} #Check if there was a file
 if(html_file_date < dat_file_date) {
   
     

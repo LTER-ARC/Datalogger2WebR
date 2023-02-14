@@ -22,8 +22,12 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+# Check if script is running on the website. If so setwd else use the project wd
+web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
+if (dir.exists(web_logger_dir)) {
+  setwd(web_logger_dir)
+}
 # Functions --------------------------------------------------------------
-setwd("/www/arcdeims7/sites/default/files/data/datalogger")
 source("importCSdata.r")
 
 # Function to flatten a list with list of dataframes. From https://stackoverflow.com/questions/16300344/how-to-flatten-a-list-of-lists/41882883#41882883
@@ -47,6 +51,12 @@ logger_file <-  "./current/Lake_E5.dat"
 #
 #****************************************************************************************************
 
+# Check if there are new data to process. If not then skip running the code
+dat_file_date <- file.mtime(logger_file[1])
+html_file_date <-file.mtime("./waterplot.html")
+if(is.na(html_file_date)) {html_file_date <-0} #Check if there a file
+if(html_file_date < dat_file_date) {
+  
 logger_data<- logger_file %>% map(function(x) importCSdata(x))
 logger_data<- flattenlist(logger_data)
 
@@ -97,7 +107,7 @@ wp1 <- logger_data %>% select(timestamp,wind_speed_s_wvt) %>%
        y = "Wind Speed (m/s)",
        color = 'Legend')+
   theme_bw() +
-  geom_line(color="red",size=.1)+
+  geom_line(color="red",linewidth =.1)+
   theme(axis.title.y = element_markdown(color = "black", size = 8))
 
 wp2 <- logger_data %>% select(timestamp,wind_dir_d1_wvt) %>%
@@ -143,3 +153,4 @@ w2_p <- ggplotly(wp2,dynamicTicks = T)
 p <- subplot(p1_p,p2_p,w1_p,w2_p, p3_p, nrows=5, shareX = TRUE,titleY = T,heights = c(.2,.2,.2,.2,.1))
 
 htmlwidgets::saveWidget(p, "lake_e5.html")
+}

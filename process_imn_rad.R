@@ -22,8 +22,12 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+# Check if script is running on the website. If so setwd else use the project wd
+web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
+if (dir.exists(web_logger_dir)) {
+  setwd(web_logger_dir)
+}
 # Functions --------------------------------------------------------------
-setwd("/www/arcdeims7/sites/default/files/data/datalogger")
 source("importCSdata.r")
 
 # Function to flatten a list with list of dataframes. From https://stackoverflow.com/questions/16300344/how-to-flatten-a-list-of-lists/41882883#41882883
@@ -42,6 +46,7 @@ flattenlist <- function(x){
 logger_file <-  "./current/CR3000_Imn_Radiation_mean.dat"
 dat_file_date <- file.mtime(logger_file)
 html_file_date <-file.mtime("./imnav_rad.html")
+if(is.na(html_file_date)) {html_file_date <-0}
 if(html_file_date < dat_file_date) {
     
   #****************************************************************************************************
