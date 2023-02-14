@@ -2,12 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-TW_watershedsoil.html
-heathmet.html
-heathsoil.html
-imnav_rad.html
-mat1981met.html
-mat1981soilmoist.html
-mat1981soiltemp.html
-mat2006Blk3soil.html
-mntsoil.html
+*.html
+processall_stations.Rtxt
