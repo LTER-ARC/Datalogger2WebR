@@ -22,8 +22,12 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+# Check if script is running on the website. If so setwd else use the project wd
+web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
+if (dir.exists(web_logger_dir)) {
+  setwd(web_logger_dir)
+}
 # Functions --------------------------------------------------------------
-setwd("/www/arcdeims7/sites/default/files/data/datalogger")
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
@@ -33,15 +37,13 @@ source("importCSdata.r")
 tabl_1 <-  "./current/WaterPlots_CR10XPB4_Table1.dat"
 tabl_2 <-  "./current/WaterPlots_CR10XPB4_Table2.dat"
 logger_file <- c(tabl_1,tabl_2)
-logger_file <- tabl_1
 
 #-------------------------------------------------------------------------
 
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
 html_file_date <-file.mtime("./waterplot.html")
-if(is.na(html_file_date)) {html_file_date <-0}
-
+if(is.na(html_file_date)) {html_file_date <-0} #Check if there a file
 if(html_file_date < dat_file_date) {
   
    
@@ -165,7 +167,9 @@ if(html_file_date < dat_file_date) {
       annotations = anno_agr) %>% 
     partial_bundle()
   
-  p <- subplot(sp1_p,sp2_p,sp3_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.4,.4,.2))
+  p <- subplot(sp1_p,sp2_p,sp3_p, nrows=3, shareX = TRUE,titleY = T,
+               heights = c(.4,.4,.2)) %>% 
+    layout(title = 'Former Tussock watering plots',margin = 0.01)
   htmlwidgets::saveWidget(p, "waterplot.html", title = "WaterPlot soil")
 }
 
