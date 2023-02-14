@@ -4,3 +4,6 @@
 .Ruserdata
 *.html
 processall_stations.Rtxt
+*.dat
+
+lib
