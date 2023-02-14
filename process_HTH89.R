@@ -22,12 +22,17 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+<<<<<<< HEAD
 # Check if script is running on the website. If so setwd else use the project wd
 web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
 if (dir.exists(web_logger_dir)) {
   setwd(web_logger_dir)
 }
 # Functions --------------------------------------------------------------
+=======
+# Functions --------------------------------------------------------------
+setwd("/www/arcdeims7/sites/default/files/data/datalogger")
+>>>>>>> e784f651604212494b116b0d3a99c661ed482c75
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
