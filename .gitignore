@@ -7,3 +7,5 @@ processall_stations.Rtxt
 *.dat
 
 lib
+*.FSL
+*.sh
