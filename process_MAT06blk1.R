@@ -36,7 +36,7 @@ source("importCSdata.r")
 #-------------------------------------------------------------------------
 
 tabl_1 <-  "./current/MAT06_Blk1_Met.dat"
-#tabl_2 <-  "./current/MAT06_BLK3_Soil.dat"
+tabl_2 <-  "./current/MAT06_BLK3_Soil.dat"
 #logger_file <- c(tabl_1,tabl_2)
 logger_file <- tabl_1
 
