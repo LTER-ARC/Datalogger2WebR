@@ -22,8 +22,12 @@ if (any(installed_packages == FALSE)) {
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
+# Check if script is running on the website. If so setwd else use the project wd
+web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
+if (dir.exists(web_logger_dir)) {
+  setwd(web_logger_dir)
+}
 # Functions --------------------------------------------------------------
-setwd("/www/arcdeims7/sites/default/files/data/datalogger")
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
@@ -40,8 +44,7 @@ logger_file <- c(tabl_1,tabl_2)
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
 html_file_date <-file.mtime("./wetsedgemet.html")
-if(is.na(html_file_date)) {html_file_date <-0}
-
+if(is.na(html_file_date)) {html_file_date <-0} # Check if there is a file
 if(html_file_date < dat_file_date) {
     
   #****************************************************************************************************
@@ -58,12 +61,14 @@ if(html_file_date < dat_file_date) {
   met_data <-  logger_data[[1]] %>%
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(6))
+    filter(timestamp > max(timestamp)-months(6)) %>% 
+    na_if(-7999)
   
   soil_data <- logger_data[[2]]  %>%
     clean_names() %>%
     arrange(timestamp)%>% 
-    filter(timestamp > max(timestamp)-months(6))
+    filter(timestamp > max(timestamp)-months(4)) %>% 
+    na_if(-7999)
   
   #****************************************************************************************************
   #Plots
@@ -169,8 +174,10 @@ if(html_file_date < dat_file_date) {
       annotations = anno_agr) %>% 
     partial_bundle()
   
-  p <- subplot(p2_p,p1_p,p3_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.7,.1),which_layout = 2)
-  
+  p <- subplot(p2_p,p1_p,p3_p, nrows=3, shareX = TRUE,titleY = T,
+               heights = c(.2,.7,.1)) %>% 
+    layout(title = 'WSG89 Met Data',margin = 0.01)
+  #p <- toWebGL(p)
   htmlwidgets::saveWidget(p, "wetsedgemet.html",title = "WetSedge89 Met")
   
   #Soil
@@ -218,7 +225,9 @@ if(html_file_date < dat_file_date) {
            yaxis =list(zerolinewidth = .1,fixedrange = FALSE),
            annotations = anno_agr) %>% 
     partial_bundle() 
-  p <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T,which_layout = 1)
+  p <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T,which_layout = 1)%>% 
+    layout(title = 'WSG89 Soil Data',margin = 0.01)
+  
   htmlwidgets::saveWidget(p, "wetsedgesoil.html", title = "WetSedge89 soil")
 
 }
