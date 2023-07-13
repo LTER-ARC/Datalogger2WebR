@@ -9,16 +9,12 @@
 ## be returned. The lists names will be the ID numbers.
 ## Jim Laundre 2020-03-04
 ## Revised
+## 2023-07-06 Took out the gh and shade met data plots. They were discontinued.  Jim L
 
 # REQUIRED PACKAGES ------------------------------------------------------
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -56,19 +52,20 @@ if(html_file_date < dat_file_date) {
   logger_data<- logger_file %>% map(function(x) importCSdata(x))
   
   #lets see what was read in.
-  map(logger_data,~names(.x))
+  #map(logger_data,~names(.x))
   
   met_data <-  logger_data[[1]] %>%
     clean_names() %>%
     arrange(timestamp)%>%
     filter(timestamp > max(timestamp)-months(2)) %>% 
-    na_if(-7999)
-  
+    select(-starts_with("gh"),-starts_with("sh"))
+    #na_if(-7999)
+ 
   soil_data <- logger_data[[2]]  %>% 
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(2)) %>% 
-    na_if(-7999)
+    filter(timestamp > max(timestamp)-months(2))
+    #na_if(-7999)
   
   #****************************************************************************************************
   #Plots
@@ -78,16 +75,12 @@ if(html_file_date < dat_file_date) {
   
   p1 <- ggplot(met_data) +
     geom_line(aes(x=timestamp, y=ct_temp_avg, color = "control")) +
-    geom_line(aes(x=timestamp, y=gh_temp_avg,color = "greenhouse")) +
-    geom_line(aes(x=timestamp, y=sh_temp_avg,color = "shade")) +
     geom_hline(aes(yintercept = 0))+
     scale_x_datetime(expand = expansion(mult = c(.01, .01))) +
     scale_color_manual(values = c(
-      'control' = 'blue',
-      'greenhouse' = 'red',
-      'shade'= 'grey')) +
+      'control' = 'blue')) +
     labs(title = "MAT89 Met Data",
-         subtitle = "Control, Greenhouse and Shade",
+         subtitle = "Control",
          x = "Date",
          y = "Degrees Celsius",
          color = '') +
@@ -97,13 +90,9 @@ if(html_file_date < dat_file_date) {
   p2 <- ggplot(met_data) +
     theme_bw() +
     geom_line(aes(x=timestamp,y=ct_rh,color="control RH"),linewidth=.1,linetype="twodash")+
-    geom_line(aes(x=timestamp,y=gh_rh,color="greenhouse RH"),linewidth=.1,linetype="dotted")+
-    geom_line(aes(x=timestamp,y=sh_rh,color="shade RH"),linewidth=.1,linetype="dashed")+
     scale_x_datetime()+
     scale_color_manual(values = c(
-      "control RH" = "blue",
-      "greenhouse RH" = "red",
-      "shade RH"= "darkolivegreen")) +
+      "control RH" = "blue")) +
     labs(title = "MAT89 Air Temperature/RH",
          x = "Date",
          y = "Relative Humidity (%)",
@@ -113,8 +102,6 @@ if(html_file_date < dat_file_date) {
   p3  <- ggplot(met_data) +
     theme_bw() +
     geom_line(aes(x=timestamp,y=ctpar_den_avg,color="control PAR"),linewidth=.1)+
-    geom_line(aes(x=timestamp,y=ghpar_den_avg,color="greenhouse PAR"),linewidth=.1)+
-    geom_line(aes(x=timestamp,y=shpar_den_avg,color="shade PAR"),linewidth=.1)+
     scale_x_datetime()+
     labs(title ="MAT89 Photosynthetically active radiation (PAR)",
          x = "Date",
@@ -189,7 +176,7 @@ if(html_file_date < dat_file_date) {
                heights = c(.15,.15,.15,.15,.4)) %>% 
     layout(title = 'MAT89 Met Data',margin = 0.01)
   #p <- subplot(p3_p,p2_p,p1_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.2,.6))
-  p <- toWebGL(p)
+ # p <- toWebGL(p)
   htmlwidgets::saveWidget(p, "mat89logger.html", title = "MAT89 Met Data")
   
   #Soil
@@ -247,7 +234,7 @@ if(html_file_date < dat_file_date) {
   p <- subplot(sp3_p,sp1_p,sp2_p, nrows=3, shareX = TRUE,titleY = T,
                heights = c(.20,.40,.40))%>% 
     layout(title = 'MAT89 Soil Temperatures',margin = 0.01)
-  p <- toWebGL(p)
+  #p <- toWebGL(p)
   htmlwidgets::saveWidget(p, "mat89soil.html", title = "MAT89 Soil Temperatures")
   
 }
