@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -32,7 +27,7 @@ source("importCSdata.r")
 
 #-------------------------------------------------------------------------
 
-logger_file <-  "./current/TLK_Inlet.dat"
+logger_file <-  "./current/TLK_Inlet_CR800.dat"
 html_tabl_1 <- "./tlk_inlet.html"
 #-------------------------------------------------------------------------
 
@@ -50,13 +45,12 @@ if(html_file_date < dat_file_date) {
   #****************************************************************************************************
   
   logger_data<- logger_file %>% map(function(x) importCSdata(x))
-  logger_data<- flatten(logger_data)
+  #logger_data<- flatten(logger_data)
   
   #lets see what was read in.
  # map(logger_data,~names(.x))
   
   logger_data <- logger_data[[1]] %>%
-   # clean_names() %>%
     arrange(timestamp)
   
   #Plots
@@ -67,7 +61,7 @@ if(html_file_date < dat_file_date) {
   # Create 4 plots for the panel
   
  p1 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=stage_ht_avg, color = "Stage Height")) +
+    geom_line(aes(x=timestamp, y=lvl_mm, color = "Stage Height")) +
     scale_x_datetime()+
     labs(title ="Toolik Inlet stage height",
          x = "Date",
@@ -76,7 +70,7 @@ if(html_file_date < dat_file_date) {
     theme_bw() 
   
   p2 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=water_temp_c, color = "Water Temperature")) +
+    geom_line(aes(x=timestamp, y=temp_c_avg, color = "Water Temperature")) +
     scale_x_datetime()+
     labs(title ="Toolik Inlet Water Temperature",
          x = "Date",
@@ -86,7 +80,7 @@ if(html_file_date < dat_file_date) {
     theme_bw() 
   
   p3 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=x25c_u_scm1, color = "Conductivity")) +
+    geom_line(aes(x=timestamp, y=cond_u_s_avg, color = "Conductivity")) +
     scale_x_datetime()+
     labs(title ="Toolik Inlet Conductivity",
          x = "Date",
@@ -96,7 +90,7 @@ if(html_file_date < dat_file_date) {
     theme_bw() 
   
   p4 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=battery_volts, color = "Battery")) +
+    geom_line(aes(x=timestamp, y=batt_v_min, color = "Battery")) +
     scale_x_datetime()+
     labs(title ="Toolik Inlet",
          x = "Date",
