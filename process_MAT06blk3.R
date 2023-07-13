@@ -9,16 +9,15 @@
 ## be returned. The lists names will be the ID numbers.
 ## Jim Laundre 2021-06-28
 ## Revised
+## 2023-07-13 Moved the greenhouse soil temperature data to the soil panel
+##            Added more documentation and removed the install package code since
+##            not best practice.  let the lower temperature y axis on the greenhouse
+##            soil plot auto range.  Jim L
 
 # REQUIRED PACKAGES ------------------------------------------------------
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -49,7 +48,7 @@ if(html_file_date < dat_file_date) {
   #****************************************************************************************************
   # MAT06 logger data are in CSI TOA5 data files
   # importCSdata will read in multiple files and create a list of data frames for each file
-  # For ploting data frames of the met and soil data are extracted and limited to 4 months
+  # For plotting, data frames of the met and soil data are extracted and limited to 2 months
   #****************************************************************************************************
     
   logger_data<- logger_file %>% map(function(x) importCSdata(x))
@@ -71,7 +70,7 @@ if(html_file_date < dat_file_date) {
   #Plots
   #****************************************************************************************************
   
-  attach(met_data)
+ # attach(met_data)
   
   p1 <- ggplot(met_data) +
     geom_line(aes(x=timestamp, y=air_t_control_avg, color = "control")) +
@@ -116,20 +115,10 @@ if(html_file_date < dat_file_date) {
           legend.position = "top")+
     coord_cartesian(ylim = c(10,14)) +
     theme_bw() 
-  
-  sp3 <- soil_data %>% select(timestamp,starts_with("t107")) %>%
-    gather("key", "value", -timestamp)%>%
-    ggplot(data=.,aes(x=timestamp, y = value,color=key)) +
-    scale_x_datetime()+
-    coord_cartesian(ylim = c(-15,15)) +
-    labs(title ="MAT2006-Blk3 CT_GH Air/Rh/Soil Temperatures",
-         x = "Date",
-         y = "Celsius ",
-         color = 'Legend')+
-    theme_bw() +
-    geom_line(aes(color = key),linewidth=.1)
-  
-  #  the dynamicTicks needs to be true for the buttons to show
+ 
+  # ---- Setting up interactive plots with ggplotly-------
+  #  Note for rangeslider to work:
+  # the dynamicTicks needs to be true for the buttons to show
   # autorange needs to be FALSE for range to work
   
   # set the min and max for the initial x axis display in ggplotly
@@ -161,7 +150,9 @@ if(html_file_date < dat_file_date) {
                   showarrow = FALSE,
                   font = list(size = 15))
   
-  # Create 3 plots for the panel
+  # Air Temperature panel ----
+  # First convert ggplot plots to ggplotly
+  #Title plot 1
   anno_agr$text <- "Air Temperature"
   # Create 3 plots for the panel
   p1_p <- ggplotly(p1,dynamicTicks = T) %>% 
@@ -170,24 +161,15 @@ if(html_file_date < dat_file_date) {
                              fixedrange = FALSE),
                  annotations = anno_agr) %>% 
     partial_bundle()
-  
+  #Title plot 2
   anno_agr$text <- "Relative Humidty"
   p2_p <- ggplotly(p2,dynamicTicks = T) %>%
           layout(xaxis= xax,
                  yaxis = (list(fixedrange = FALSE)),
                  annotations = anno_agr) %>%
     partial_bundle()
-  
-  anno_agr$text <- "Soil Temperatures"
-  sp3_p <- ggplotly(sp3,dynamicTicks = T) %>% 
-    layout(xaxis=  list( 
-      autorange=F,
-      range= list(min_date, max_date)),
-      yaxis = list(autorange=F,range = c(-15, 15),
-                   fixedrange= FALSE),
-      annotations = anno_agr) %>% 
-    partial_bundle()
-  
+
+  #Title plot 3
   anno_agr$text <- "Battery"
   p4_p <- ggplotly(p3, dynamicTicks = T) %>%
     layout(
@@ -197,14 +179,16 @@ if(html_file_date < dat_file_date) {
       annotations = anno_agr) %>%
     partial_bundle()
   
-  
-  p <- subplot(p2_p,p1_p,sp3_p,p4_p, nrows=4, shareX = TRUE,titleY = T,
-               heights = c(.20,.3,.3,.2), which_layout = 2) %>% 
-    layout(title = 'MAT2006-Blk3 CT_GH Air/Rh/Soil Temperatures',margin = 0.01)
+  #Put the plots together on a panel
+  panel1 <- subplot(p2_p,p1_p,p4_p, nrows=3, shareX = TRUE,titleY = T,
+               heights = c(.2,.6,.2), which_layout = 2) %>% 
+    layout(title = 'MAT2006-Blk3 CT_GH Air/Rh Temperatures',margin = 0.01)
     
-  htmlwidgets::saveWidget(p, "mat2006Blk3met.html", title = "MAT06 Blk 3")
+  htmlwidgets::saveWidget(panel1, "mat2006Blk3met.html", title = "MAT06 Blk 3")
   
-  #Soil
+  
+  #Soil ggplot Plots -----
+  
   sp1 <- soil_data %>% select(timestamp,starts_with("ct")) %>%
     gather("key", "value", -timestamp)%>%
     ggplot(data=.,aes(x=timestamp, y = value,color=key)) +
@@ -230,15 +214,30 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", size = 8),
           legend.position = "top")
   
-  anno_agr$text <- "Control Soil"
+  sp3 <- soil_data %>% select(timestamp,starts_with("t107")) %>%
+    gather("key", "value", -timestamp)%>%
+    ggplot(data=.,aes(x=timestamp, y = value,color=key)) +
+    scale_x_datetime()+
+    coord_cartesian(ylim = c(NA,15)) +
+    labs(title ="MAT2006-Blk3 CT_GH Soil Temperatures",
+         x = "Date",
+         y = "Celsius ",
+         color = 'Legend')+
+    theme_bw() +
+    geom_line(aes(color = key),linewidth=.1)
+  
+  # Air Temperature interactive panel ----
+  # First convert ggplot plots to ggplotly
+  #Title plot 1 
+  anno_agr$text <- "Control Plot Soil Temperatures"
   sp1_p <- ggplotly(sp1,dynamicTicks = T) %>% 
     layout(xaxis= xax,
       yaxis = list(autorange=F,range = c(-15, 15),
                    fixedrange=FALSE),
       annotations = anno_agr) %>% 
     partial_bundle()
-  
-  anno_agr$text <- "NP Soil"
+  #Title plot 2
+  anno_agr$text <- "F10 Plot Soil Temperatures"
   sp2_p <- ggplotly(sp2,dynamicTicks = T) %>% 
     layout(xaxis=  xax,
       yaxis = list(autorange=F,range = c(-15, 15),
@@ -246,9 +245,20 @@ if(html_file_date < dat_file_date) {
       annotations = anno_agr) %>% 
     partial_bundle()
   
-  p <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T) %>% 
+  #Title plot 3
+  anno_agr$text <- "Greenhouse Plot Soil Temperatures"
+  sp3_p <- ggplotly(sp3,dynamicTicks = T) %>% 
+    layout(xaxis=  list( 
+      autorange=F,
+      range= list(min_date, max_date)),
+      yaxis = list(autorange=F,#range = c(NA, 15),
+                   fixedrange= FALSE),
+      annotations = anno_agr) %>% 
+    partial_bundle()
+  
+  #Put the plots together on a panel
+  panel2 <- subplot(sp3_p,sp1_p,sp2_p, nrows=3, shareX = TRUE,titleY = T) %>% 
     layout(title = 'MAT206-Blk3 Soil Temperature',margin = 0.01)
-  htmlwidgets::saveWidget(p, "mat2006Blk3soil.html", title = "MAT06 Soil")
-
+  htmlwidgets::saveWidget(panel2, "mat2006Blk3soil.html", title = "MAT06 Soil")
 
 }
