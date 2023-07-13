@@ -14,11 +14,7 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
+
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -36,14 +32,14 @@ source("importCSdata.r")
 #-------------------------------------------------------------------------
 
 tabl_1 <-  "./current/MAT06_Blk1_Met.dat"
-tabl_2 <-  "./current/MAT06_BLK3_Soil.dat"
-#logger_file <- c(tabl_1,tabl_2)
-logger_file <- tabl_1
+tabl_2 <-  "./current/MAT06_BLK1_Soil.dat"
+tabl_3 <-  "./current/MAT06_BLK1_GH_Soil.dat"
+logger_file <-  c(tabl_1,tabl_2, tabl_3)
 
 #-------------------------------------------------------------------------
 
 # Check if there are new data to process. If not then skip running the code
-dat_file_date <- file.mtime(logger_file)
+dat_file_date <- file.mtime(logger_file[1])
 html_file_date <-file.mtime("./mat2006Blk1met.html")
 if(is.na(html_file_date)) {html_file_date <-0}
 if(html_file_date < dat_file_date) {
@@ -66,11 +62,19 @@ if(html_file_date < dat_file_date) {
     arrange(timestamp)%>%
     filter(timestamp > max(timestamp)-months(2))
   
-  # soil_data <- logger_data[[2]]  %>% 
-  #   clean_names() %>%
-  #   arrange(timestamp)%>%
-  #   filter(timestamp > max(timestamp)-months(2))
   
+  soil_data <- logger_data[[2]]  %>% 
+    clean_names() %>%
+    arrange(timestamp)%>%
+    filter(timestamp > max(timestamp)-months(2))
+  
+  
+  soil_GH_data <- logger_data[[3]]  %>% 
+    clean_names() %>%
+    arrange(timestamp)%>%
+    filter(timestamp > max(timestamp)-months(2))
+  
+ 
   #****************************************************************************************************
   #Plots
   #****************************************************************************************************
@@ -158,8 +162,8 @@ if(html_file_date < dat_file_date) {
   #p <- subplot(p3_p,p2_p,p1_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.2,.6))
   htmlwidgets::saveWidget(p, "mat2006Blk1met.html",title = "MAT06 Met")
   
-  #Soil
-  sp1 <- met_data %>% select(timestamp,intersect(contains("ct"), contains("avg"))) %>%
+  #Soilin CT nd F10 plots
+  sp1 <- soil_data %>% select(timestamp,intersect(contains("ct"), contains("avg"))) %>%
     gather("key", "value", -timestamp)%>%
     ggplot(data=.,aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+
@@ -171,7 +175,7 @@ if(html_file_date < dat_file_date) {
     theme_bw() +
     geom_line(aes(color = key),size=.1)
   
-  sp2 <- met_data %>% select(timestamp,intersect(contains("gh"), contains("avg"))) %>%
+  sp2 <- soil_GH_data %>% select(timestamp,intersect(contains("gh"), contains("avg"))) %>%
     gather("key", "value", -timestamp) %>%
     ggplot(data=., aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+
