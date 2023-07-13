@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -201,7 +196,7 @@ if(html_file_date < dat_file_date) {
     ggplot(.,aes(x=timestamp, y = value,color=key)) +
     scale_colour_manual(values=cbPalette15) +
     scale_x_datetime()+
-    coord_cartesian(ylim = c(-15,15)) +
+    coord_cartesian(ylim = c(0,15)) +
     labs(title ="T-chain Temperature",
          x = "Date",
          y = "Celsius ",
