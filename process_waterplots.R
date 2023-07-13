@@ -34,8 +34,8 @@ source("importCSdata.r")
 
 #-------------------------------------------------------------------------
 
-tabl_1 <-  "./current/WaterPlots_CR10XPB4_Table1.dat"
-tabl_2 <-  "./current/WaterPlots_CR10XPB4_Table2.dat"
+tabl_1 <-  "./current/WaterPlots_CR10XPB_4_Table1.dat"
+tabl_2 <-  "./current/WaterPlots_CR10XPB_4_Table2.dat"
 logger_file <- c(tabl_1,tabl_2)
 
 #-------------------------------------------------------------------------
@@ -122,7 +122,7 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", linewidth = 8))
   
   sp2 <- moisture_data %>% select(timestamp,contains("wat_cont")) %>%
-    na_if(799900) %>% na_if(-7999) %>% 
+    #na_if(799900) %>% na_if(-7999) %>% 
     gather("key", "value", -timestamp) %>%
     ggplot(data=., aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+
