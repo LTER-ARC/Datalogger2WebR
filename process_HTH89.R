@@ -13,12 +13,6 @@
 # REQUIRED PACKAGES ------------------------------------------------------
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
-
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -59,20 +53,24 @@ if(html_file_date < dat_file_date) {
 
   met_data <-  logger_data[[1]] %>%
     clean_names() %>%
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(5))
+    filter(timestamp > max(timestamp) %m-% months(6))
   
   soil_data <- logger_data[[2]]  %>%
     clean_names() %>%
     arrange(timestamp)%>%
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
     mutate(cs616_c_tvw_avg = cs616_c_tvw_avg*100,cs616_n_pvw_avg = cs616_n_pvw_avg*100) %>% 
-    filter(timestamp > max(timestamp)-months(5))
+    filter(timestamp > max(timestamp) %m-% months(6))
+  
+  # set the min and max for the initial x axis display in ggplotly
+  max_date <- max(c(met_data$timestamp,soil_data$timestamp))
+  min_date <-max_date - lubridate::days(5) 
   
   #****************************************************************************************************
   #Plots
   #****************************************************************************************************
-  
-  #attach(met_data)
   
   p1 <- ggplot(met_data) +
     geom_line(aes(x=timestamp, y=cs500temp_avg, color = "3M Air")) +
@@ -118,10 +116,7 @@ if(html_file_date < dat_file_date) {
   #  the dynamicTicks needs to be true for the buttons to show
   # autorange needs to be FALSE for range to work
   
-  # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(met_data$timestamp)- lubridate::days(5)
-  max_date <-max(met_data$timestamp)
-  
+
   # Define xaxis options for using a range slider
   xax<- list( 
     autorange=F,
@@ -179,8 +174,8 @@ if(html_file_date < dat_file_date) {
     gather("key", "value", -timestamp)%>%
     ggplot(data=.,aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+
-    coord_cartesian(ylim = c(-15,15)) +
-    labs(title ="Heath CT_NP Soil Temperatures Moisture",
+    coord_cartesian(ylim = c(-15,NA)) +
+    labs(
          x = "Date",
          y = "Celsius ",
          color = 'Legend')+
@@ -191,12 +186,10 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", linewidth = 8))
   
   sp2 <- soil_data %>% select(timestamp,contains("cs616")) %>%
-    na_if(799900) %>% na_if(-7999) %>% 
     gather("key", "value", -timestamp) %>%
     ggplot(data=., aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+
-    labs(title ="Heath CT_NP Soil Temperatures and Moisture",
-         x = "Date",
+    labs(x = "Date",
          y = "%",
          color = 'Legend')+
     coord_cartesian(ylim = c(0,100)) +
@@ -209,18 +202,26 @@ if(html_file_date < dat_file_date) {
   anno_agr$text <- "Soil Temperatures"
   sp1_p <- ggplotly(sp1,dynamicTicks = T) %>% 
     layout(xaxis= xax,
-           yaxis =list(zerolinewidth = .1,fixedrange = FALSE),
+           yaxis =list(zerolinewidth = .1,
+                       autorange=FALSE,
+                       range = c(-15, 20),
+                       fixedrange = FALSE
+                       ),
            annotations = anno_agr) %>% 
     partial_bundle()
   
   anno_agr$text <- "Soil Moisture"
   sp2_p <- ggplotly(sp2,dynamicTicks = T) %>% 
     layout(xaxis= xax,
-           yaxis =list(zerolinewidth = .1,fixedrange = FALSE),
+           yaxis =list(zerolinewidth = .1,
+                       autorange=FALSE,
+                       range = c(0, 60),
+                       fixedrange = FALSE),
            annotations = anno_agr) %>% 
     partial_bundle()
-  p <- subplot(sp1_p, nrows=1, shareX = TRUE,titleY = T)
-htmlwidgets::saveWidget(p, "heathsoil.html", title = "Heath89 soil")
+  p_soil <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T)%>% 
+    layout(title = 'Heath Soil Temperature and Moisture',margin = 0.01)
+htmlwidgets::saveWidget(p_soil, "heathsoil.html", title = "Heath89 soil")
 
 }
 
