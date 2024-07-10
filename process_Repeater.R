@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -60,7 +55,8 @@ if(html_file_date < dat_file_date) {
   met_data <-  logger_data[[1]] %>%
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(12))
+    filter(timestamp > max(timestamp) %m-% months(12)) %>% 
+    mutate(across(where(is.numeric), ~na_if(.,-6999)))
   
   #****************************************************************************************************
   #Plots
@@ -72,6 +68,7 @@ if(html_file_date < dat_file_date) {
     geom_line(aes(x=timestamp, y=reftemp_avg, color = "control")) +
     geom_hline(aes(yintercept = 0))+
     scale_x_datetime(expand = expansion(mult = c(.01, .01))) +
+    coord_cartesian(ylim = c(-40,25)) +
     scale_color_manual(values = c(
       'logger Reference Temperature' = 'blue')) +
     labs(title = "Itigaknit RepeaterMet Data",
@@ -98,8 +95,8 @@ if(html_file_date < dat_file_date) {
   # autorange needs to be FALSE for range to work
   
   # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(timestamp)- lubridate::days(5)
-  max_date <-max(timestamp)
+  min_date <-max(met_data$timestamp)- lubridate::days(5)
+  max_date <-max(met_data$timestamp)
   
   # Define xaxis options for using a range slider
   xax<- list( 
@@ -132,14 +129,14 @@ if(html_file_date < dat_file_date) {
   p1_p <- ggplotly(p1,dynamicTicks = T) %>% 
           layout(xaxis= xax,
                  yaxis =list(zerolinewidth = .1, 
-                             fixedrange = FALSE),
+                             autorange=F,range = c(-40, 30)),
                  annotations = anno_agr) %>% 
     partial_bundle()
   
   anno_agr$text <- "Battery"
   p2_p <- ggplotly(p2,dynamicTicks = T) %>%
           layout(xaxis= xax,
-                 yaxis = (list(fixedrange = FALSE)),
+                 yaxis = (list(autorange=F,range = c(10, 16))),
                  annotations = anno_agr) %>%
     partial_bundle()
   
