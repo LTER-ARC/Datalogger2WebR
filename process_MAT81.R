@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -57,12 +52,15 @@ if(html_file_date < dat_file_date) {
   met_soil_data <-  logger_data[[1]] %>%
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(12))
+    filter(timestamp > max(timestamp) %m-% months(12))
+ 
+   # set the min and max for the initial x axis display in ggplotly
+  max_date <- max(c(met_soil_data$timestamp))
+  min_date <-max_date - lubridate::days(5) 
   
   #****************************************************************************************************
   #Plots
   #****************************************************************************************************
-  
   
   p1 <- ggplot(met_soil_data) +
     geom_line(aes(x=timestamp, y=air_3m_avg, color = "control")) +
@@ -108,9 +106,6 @@ if(html_file_date < dat_file_date) {
   #  the dynamicTicks needs to be true for the buttons to show
   # autorange needs to be FALSE for range to work
   
-  # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(met_soil_data$timestamp)- lubridate::days(5)
-  max_date <-max(met_soil_data$timestamp)
   
   # Define xaxis options for using a range slider
   xax<- list( 
