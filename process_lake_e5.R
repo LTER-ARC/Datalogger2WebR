@@ -53,7 +53,7 @@ logger_file <-  "./current/Lake_E5.dat"
 
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
-html_file_date <-file.mtime("./waterplot.html")
+html_file_date <-file.mtime("./lake_e5.html")
 if(is.na(html_file_date)) {html_file_date <-0} #Check if there a file
 if(html_file_date < dat_file_date) {
   
