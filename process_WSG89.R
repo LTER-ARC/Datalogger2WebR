@@ -13,12 +13,6 @@
 # REQUIRED PACKAGES ------------------------------------------------------
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
-
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -37,7 +31,6 @@ source("importCSdata.r")
 tabl_1 <-  "./current/WetSedge_Met_Hourly.dat"
 tabl_2 <-  "./current/WetSedge_Soil.dat"
 logger_file <- c(tabl_1,tabl_2)
-#logger_file <- tabl_1
 
 #-------------------------------------------------------------------------
 
@@ -61,20 +54,22 @@ if(html_file_date < dat_file_date) {
   met_data <-  logger_data[[1]] %>%
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(6)) %>% 
-    na_if(-7999)
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
+    filter(timestamp > max(timestamp) %m-% months(6)) 
   
   soil_data <- logger_data[[2]]  %>%
     clean_names() %>%
     arrange(timestamp)%>% 
-    filter(timestamp > max(timestamp)-months(4)) %>% 
-    na_if(-7999)
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
+    filter(timestamp > max(timestamp) %m-% months(6)) 
+  
+  # set the min and max for the initial x axis display in ggplotly
+  max_date <- max(c(met_data$timestamp,soil_data$timestamp))
+  min_date <-max_date - lubridate::days(5) 
   
   #****************************************************************************************************
   #Plots
   #****************************************************************************************************
-  
-  #attach(met_data)
   
   p1 <- ggplot(met_data) +
     geom_line(aes(x=timestamp, y=ct_airtemp_avg, color = "3M Air")) +
@@ -122,11 +117,7 @@ if(html_file_date < dat_file_date) {
   
   #  the dynamicTicks needs to be true for the buttons to show
   # autorange needs to be FALSE for range to work
-  
-  # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(met_data$timestamp)- lubridate::days(5)
-  max_date <-max(met_data$timestamp)
-  
+ 
   # Define xaxis options for using a range slider
   xax<- list( 
     autorange=F,
@@ -177,7 +168,7 @@ if(html_file_date < dat_file_date) {
   p <- subplot(p2_p,p1_p,p3_p, nrows=3, shareX = TRUE,titleY = T,
                heights = c(.2,.7,.1)) %>% 
     layout(title = 'WSG89 Met Data',margin = 0.01)
-  #p <- toWebGL(p)
+  
   htmlwidgets::saveWidget(p, "wetsedgemet.html",title = "WetSedge89 Met")
   
   #Soil
@@ -196,8 +187,7 @@ if(html_file_date < dat_file_date) {
           legend.position = "top",
           axis.title.y = element_markdown(color = "black", linewidth = 8))
   
-  sp2 <- soil_data %>% select(timestamp,contains(c("ct","gh"))) %>%
-    na_if(799900) %>% na_if(-7999) %>% 
+  sp2 <- soil_data %>% select(timestamp,contains(c("ct","gh"))) %>% 
     gather("key", "value", -timestamp) %>%
     ggplot(data=., aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+

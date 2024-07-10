@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -63,22 +58,24 @@ if(html_file_date < dat_file_date) {
     arrange(timestamp)%>%
     mutate(across(contains("Wat_con"),~ .* 100)) %>% 
     select(-record) %>% 
-    filter(timestamp > max(timestamp)-months(6))
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
+    filter(timestamp > max(timestamp) %m-% months(6))
   
   temperature_data <- logger_data[[2]]  %>%
     clean_names() %>%
     arrange(timestamp)%>%
     select(-record) %>%
-    filter(timestamp > max(timestamp)-months(6))
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
+    filter(timestamp > max(timestamp) %m-% months(6))
+  
+  # set the min and max for the initial x axis display in ggplotly
+  max_date <- max(c(moisture_data$timestamp,temperature_data$timestamp))
+  min_date <-max_date - lubridate::days(5) 
   
   #****************************************************************************************************
   #Plots
   #****************************************************************************************************
-  
-  # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(moisture_data$timestamp)- lubridate::days(5)
-  max_date <-max(moisture_data$timestamp)
-  
+ 
   # Define xaxis options for using a range slider
   xax<- list( 
     autorange=F,
@@ -122,7 +119,6 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", linewidth = 8))
   
   sp2 <- moisture_data %>% select(timestamp,contains("wat_cont")) %>%
-    #na_if(799900) %>% na_if(-7999) %>% 
     gather("key", "value", -timestamp) %>%
     ggplot(data=., aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+
