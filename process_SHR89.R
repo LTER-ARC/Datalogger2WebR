@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -57,18 +52,21 @@ if(html_file_date < dat_file_date) {
     #lets see what was read in.
     #map(logger_data,~names(.x))
     
-    met_data <-  logger_data[[1]] %>%
+    met_soil_data <-  logger_data[[1]] %>%
       clean_names() %>%
       arrange(timestamp)%>%
-      filter(timestamp > max(timestamp)-months(6))
+      mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
+      filter(timestamp > max(timestamp) %m-% months(6))
+    
+    # set the min and max for the initial x axis display in ggplotly
+    max_date <- max(c(met_soil_data$timestamp))
+    min_date <-max_date - lubridate::days(5) 
     
     #****************************************************************************************************
     #Plots
     #****************************************************************************************************
-    
-    #attach(met_data)
-    
-    p1 <- ggplot(met_data) +
+
+    p1 <- ggplot(met_soil_data) +
       geom_line(aes(x=timestamp, y=air_tc_3m_avg, color = "3M Air")) +
       geom_line(aes(x=timestamp, y=t109_3m_avg,color = "3M Air TC")) +
       geom_line(aes(x=timestamp, y=gh_air_tc_avg, color ="Greenhouse Air")) +
@@ -86,7 +84,7 @@ if(html_file_date < dat_file_date) {
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.7),
             legend.position = "top")
-    p2 <- ggplot(met_data) +
+    p2 <- ggplot(met_soil_data) +
       theme_bw() +
       geom_line(aes(x=timestamp,y=rh_3meter, color = "3M RH")) +
       geom_line(aes(x=timestamp,y=gh_rh, color="Greenhouse RH")) +
@@ -102,7 +100,7 @@ if(html_file_date < dat_file_date) {
       theme(plot.title = element_text(hjust = 0.7),
             axis.title.y = element_markdown(color = "black", linewidth = 8))
     
-    p3 <- ggplot(met_data) +
+    p3 <- ggplot(met_soil_data) +
       geom_line(aes(x=timestamp, y=batt_v_avg, color = "Battery average")) +
       scale_x_datetime()+
       labs(x = "Date",
@@ -115,10 +113,6 @@ if(html_file_date < dat_file_date) {
     
     #  the dynamicTicks needs to be true for the buttons to show
     # autorange needs to be FALSE for range to work
-    
-    # set the min and max for the initial x axis display in ggplotly
-    min_date <-max(met_data$timestamp)- lubridate::days(5)
-    max_date <-max(met_data$timestamp)
     
     # Define xaxis options for using a range slider
     xax<- list( 
@@ -175,8 +169,7 @@ if(html_file_date < dat_file_date) {
     htmlwidgets::saveWidget(p, "shr89met.html",title = "Shrub89 Met")
     
     #Soil
-    soil_data <- met_data %>% select(timestamp,contains(c("cm","sur"))) %>% 
-      na_if(799900) %>% na_if(-7999)
+    soil_data <- met_soil_data %>% select(timestamp,contains(c("cm","sur"))) 
     
     sp1 <- soil_data %>% select(timestamp,contains(c("ct"))) %>%
       gather("key", "value", -timestamp)%>%
