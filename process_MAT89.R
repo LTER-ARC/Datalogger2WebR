@@ -57,21 +57,23 @@ if(html_file_date < dat_file_date) {
   met_data <-  logger_data[[1]] %>%
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(2)) %>% 
-    select(-starts_with("gh"),-starts_with("sh"))
-    #na_if(-7999)
+    filter(timestamp > max(timestamp) %m-% months(6)) %>% 
+    select(-starts_with("gh"),-starts_with("sh")) %>% 
+  mutate(across(where(is.numeric), ~na_if(.,-7999))) 
  
   soil_data <- logger_data[[2]]  %>% 
     clean_names() %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(2))
-    #na_if(-7999)
+    filter(timestamp > max(timestamp) %m-% months(6)) %>% 
+   mutate(across(where(is.numeric), ~na_if(.,-7999)))
+
+    # set the min and max for the initial x axis display in ggplotly
+  max_date <- max(c(met_data$timestamp,soil_data$timestamp))
+  min_date <-max_date - lubridate::days(5) 
   
   #****************************************************************************************************
   #Plots
   #****************************************************************************************************
-  
-  attach(met_data)
   
   p1 <- ggplot(met_data) +
     geom_line(aes(x=timestamp, y=ct_temp_avg, color = "control")) +
@@ -113,10 +115,6 @@ if(html_file_date < dat_file_date) {
   
   #  the dynamicTicks needs to be true for the buttons to show
   # autorange needs to be FALSE for range to work
-  
-  # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(met_data$timestamp)- lubridate::days(5)
-  max_date <-max(met_data$timestamp)
   
   # Define xaxis opitons for using a range slider
   xax<- list( 
