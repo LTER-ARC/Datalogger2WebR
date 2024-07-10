@@ -60,11 +60,11 @@ if(html_file_date < dat_file_date) {
   met_data <-  logger_data[[1]] %>%
     rename(air_3m_avg = tair_avg, rh = rel_hum_avg) %>%
     clean_names() %>%
+    mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
     arrange(timestamp)%>%
-    filter(timestamp > max(timestamp)-months(1)) %>%
+    filter(timestamp > max(timestamp) %m-% months(1)) %>%
     select(timestamp,air_3m_avg,rh,tsoil_avg,wind_speed_s_wvt,wind_dir_d1_wvt,
-           par_in_avg,battery,spn1_tot_avg,tsoil_2_avg,water_levl_avg) %>% 
-    na_if(-6999)
+           par_in_avg,battery,spn1_tot_avg,tsoil_2_avg,water_levl_avg)
   
   
   #****************************************************************************************************
@@ -170,6 +170,6 @@ if(html_file_date < dat_file_date) {
   
   
   p <- subplot(p1_p,p4_p,p2_p,p3_p, nrows=4, shareX = TRUE,titleY = T,heights = c(.2,.2,.3,.3),which_layout = 1) %>% 
-    layout(title = 'Wet Sedge Wetland Station',margin = 0.01) %>% toWebGL()
+    layout(title = 'Wet Sedge Wetland Station',margin = 0.01) #%>% toWebGL()
   htmlwidgets::saveWidget(p, "Twetland.html", title = "TWetland ")
 }
