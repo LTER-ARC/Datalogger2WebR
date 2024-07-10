@@ -28,7 +28,7 @@ importCSdata <- function(filename,retopt="data"){
     		header <- scan(file=filename,skip=1,nlines=1,what=character(),sep=",")
       		if (header[1]=="TIMESTAMP") { # CSI TOA5 file
         		stn.data <- read.table(file=filename,skip=4,header=FALSE, na.strings=c("NAN"),sep=",")
-        		names(stn.data) <- header
+        		names(stn.data) <- tolower(header) #lower case so clean names will not add extra underscores between lower and upper case characters
         		  # R-format timestamp as a R POSIXct date/timestamps with time zone specified above
         		stn.data <-stn.data %>% clean_names()%>%
         		  mutate(timestamp= parse_date_time(timestamp, "ymd HMS",tz=time_zone ))
@@ -51,7 +51,11 @@ importCSdata <- function(filename,retopt="data"){
       		    mutate(tabl_id = paste(site,"ID",var_names[match(tabl_id,tabl_id)], sep= "_")) %>% #replace with the Site name  and ID number
       		    select(var_names,tabl_id) %>% 
       		    split.data.frame(.$tabl_id) %>%
-      		    map( ~ (.x %>% select(var_names))) # keep only the variable name column.
+        	    map( function(x){   # keep only the variable name column. Add "ID_" to the the table id number.
+        	      select(x,var_names)
+        	      x$var_names[1]<- paste0("ID_",x$var_names[1])
+        	      x
+        	      })
       		     # Now read in the data file with the mixed arrays of data
       		  ncol <- max(count.fields(filename, sep = ",")) # get max number of columns in file since first row is not the max
       		  stn.data <- read.csv(filename,header=FALSE, fill = TRUE,col.names = paste0("V", seq_len(ncol)))
