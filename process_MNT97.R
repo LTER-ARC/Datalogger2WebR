@@ -14,11 +14,6 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -59,14 +54,14 @@ if(html_file_date < dat_file_date) {
     met_data <-  logger_data[[1]] %>%
       clean_names() %>%
       arrange(timestamp)%>%
-      filter(timestamp > max(timestamp)-months(12)) %>% 
-      na_if(-6999)
+      filter(timestamp > max(timestamp) %m-% months(12)) %>% 
+      mutate(across(where(is.numeric), ~na_if(.,-6999)))
     
     soil_data <- logger_data[[3]]  %>%
       clean_names() %>%
       arrange(timestamp)%>%
-      filter(timestamp > max(timestamp)-months(12)) %>% 
-      na_if(-6999)
+      filter(timestamp > max(timestamp) %m-% months(12)) %>% 
+      mutate(across(where(is.numeric), ~na_if(.,-6999)))
     
     #****************************************************************************************************
     #Plots
