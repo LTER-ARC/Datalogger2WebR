@@ -14,11 +14,7 @@
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
               "plotly","readxl","stringr","tidyverse")
 
-# Install packages not yet installed
-installed_packages <- packages %in% rownames(installed.packages())
-if (any(installed_packages == FALSE)) {
-  install.packages(packages[!installed_packages])
-}
+
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -64,19 +60,14 @@ if(html_file_date < dat_file_date) {
   logger_data <- logger_data[[1]] %>%
    # clean_names() %>%
     arrange(timestamp) %>%
-  filter(timestamp > max(timestamp)-months(2))
+  filter(timestamp > max(timestamp) %m-% months(6))
+ 
+   # set the min and max for the initial x axis display in ggplotly
+  max_date <- max(c(logger_data$timestamp))
+  min_date <-max_date - lubridate::days(5)
   
   #Plots
-  
-  
-  attach(logger_data)
-  
-  
-  # set the min and max for the initial x axis display in ggplotly
-  min_date <-max(timestamp)- lubridate::days(5)
-  max_date <-max(timestamp)
-  
-  
+ 
   p1 <- ggplot(logger_data) +
     geom_line(aes(x=timestamp, y=t_hmp_avg, color = "Air Temperature")) +
     geom_line(aes(x=timestamp, y=rh_hmp_avg/10, color = "RH scaled")) +
@@ -124,30 +115,65 @@ if(html_file_date < dat_file_date) {
          color = '')+
     scale_color_manual(values = c("Battery" = "black"))+
     theme_bw() 
+
+  # Define xaxis options for using a range slider
+  xax<- list( 
+    autorange=F,
+    range= list(min_date, max_date),
+    rangeselector = list(
+      buttons = list(
+        list(count = 1, label = "1 week", strp ="week", stepmode = "backward"),
+        list(count = 3, label = "3 mo", step = "month", stepmode = "backward"),
+        list(count = 6, label = "6 mo", step = "month", stepmode = "backward"),
+        #list(count = 1, label = "YTD", step = "year", stepmode = "todate"),
+        list(step = "all")
+      )),
+    rangeslider = list(type = "date", thickness=0.05))
+  # Create a list of arguments for the annotation layout to add titles to the subplots
+  anno_agr <-list(x = .5,
+                  text = "",
+                  y = 1,
+                  yref = "paper",
+                  xref = "paper",
+                  xanchor = "center",
+                  yanchor = "top",
+                  yshift = 20,
+                  showarrow = FALSE,
+                  font = list(size = 15))
   
+  anno_agr$text <- "Air Temperature/RH and Soil Temperature"
   p1_p <- ggplotly(p1,dynamicTicks = T) %>% 
-    layout(xaxis= list( 
-      autorange=F,range= list(min_date, max_date))
-    ) %>% 
+    layout(xaxis= xax,
+           yaxis =list(zerolinewidth = .1, 
+                       fixedrange = FALSE),
+           annotations = anno_agr) %>% 
     partial_bundle()
+  #Title plot 2
+  anno_agr$text <- "PAR Incoming and Reflected"
   p2_p <- ggplotly(p2,dynamicTicks = T) %>% 
-    layout(xaxis= list( 
-      autorange=F,range= list(min_date, max_date))
-    ) %>% 
+    layout(xaxis=  xax,
+           yaxis = (list(fixedrange = FALSE)),
+           annotations = anno_agr) %>%
     partial_bundle()
+  #Title plot 3
+  anno_agr$text <- "Solar Incoming and Reflected"
   p3_p <- ggplotly(p3,dynamicTicks = T) %>% 
-    layout(xaxis= list( 
-      autorange=F,range= list(min_date, max_date))
-    ) %>% 
+    layout(xaxis=  xax,
+           yaxis = (list(fixedrange = FALSE)),
+           annotations = anno_agr) %>%
     partial_bundle()
+  #Title plot 4
+  anno_agr$text <- "Average Battery Voltage"
   p4_p <- ggplotly(p4,dynamicTicks = T) %>% 
-    layout(xaxis= list( 
-      autorange=F,range= list(min_date, max_date))
-    ) %>% 
+    layout(xaxis=  xax,
+           yaxis = (list(fixedrange = FALSE)),
+           annotations = anno_agr) %>%
     partial_bundle()
   
   p <- subplot(p1_p,p2_p,p3_p,p4_p, nrows=4, shareX = TRUE,titleY = T,
-               heights = c(.3,.3,.3,.1))
+               heights = c(.3,.3,.3,.1)) %>% 
+    layout(title = 'MAT2006-Blk3 CT_GH Air/Rh Temperatures',margin = 0.01)
   
 htmlwidgets::saveWidget(p, "imnav_rad.html",title = "Imnaviat solar station")
 }
+
