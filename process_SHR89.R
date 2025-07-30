@@ -67,10 +67,10 @@ if(html_file_date < dat_file_date) {
     #****************************************************************************************************
 
     p1 <- ggplot(met_soil_data) +
-      geom_line(aes(x=timestamp, y=air_tc_3m_avg, color = "3M Air")) +
+      geom_line(aes(x=timestamp, y=airtc_3m_avg, color = "3M Air")) +
       geom_line(aes(x=timestamp, y=t109_3m_avg,color = "3M Air TC")) +
-      geom_line(aes(x=timestamp, y=gh_air_tc_avg, color ="Greenhouse Air")) +
-      geom_line(aes(x=timestamp, y =sh_air_tc_avg, color = "Shade Air")) +
+      geom_line(aes(x=timestamp, y=gh_airtc_avg, color ="Greenhouse Air")) +
+      geom_line(aes(x=timestamp, y =sh_airtc_avg, color = "Shade Air")) +
       geom_hline(aes(yintercept = 0))+
       scale_x_datetime(expand = expansion(mult = c(.01, .01))) +
       scale_color_manual(values = c(
@@ -101,7 +101,7 @@ if(html_file_date < dat_file_date) {
             axis.title.y = element_markdown(color = "black", linewidth = 8))
     
     p3 <- ggplot(met_soil_data) +
-      geom_line(aes(x=timestamp, y=batt_v_avg, color = "Battery average")) +
+      geom_line(aes(x=timestamp, y=battv_avg, color = "Battery average")) +
       scale_x_datetime()+
       labs(x = "Date",
            y = "volts",

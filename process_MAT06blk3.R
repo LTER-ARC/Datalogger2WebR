@@ -16,7 +16,7 @@
 
 # REQUIRED PACKAGES ------------------------------------------------------
 packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
+              "plotly","readxl","stringr","tidyverse","googledrive")
 
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
@@ -30,13 +30,16 @@ if (dir.exists(web_logger_dir)) {
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
-
+# Google drive file
+tabl_1 <-  drive_download(as_id("https://drive.google.com/file/d/1-47Oqe3-OOBJEblmlzxQizAzdfsADdh4/view?usp=sharing"), overwrite = TRUE) %>% .$name
+tabl_2 <-   drive_download(as_id("https://drive.google.com/file/d/1-As9fM-k1frENRAgLSbFx2x2FqRZA07M/view?usp=sharing"), overwrite = TRUE) %>% .$name
 #-------------------------------------------------------------------------
-
+# local files
 tabl_1 <-  "./current/MAT06_BLK3_Met.dat"
 tabl_2 <-  "./current/MAT06_BLK3_Soil.dat"
-logger_file <- c(tabl_1,tabl_2)
 #-------------------------------------------------------------------------
+logger_file <- c(tabl_1,tabl_2)
+
 
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
@@ -73,7 +76,7 @@ if(html_file_date < dat_file_date) {
  # attach(met_data)
   
   p1 <- ggplot(met_data) +
-    geom_line(aes(x=timestamp, y=air_t_control_avg, color = "control")) +
+    geom_line(aes(x=timestamp, y=airtcontrol_avg, color = "control")) +
     geom_line(aes(x=timestamp, y=air_gh_avg,color = "greenhouse")) +
     geom_hline(aes(yintercept = 0))+
     scale_x_datetime(expand = expansion(mult = c(.01, .01))) +
@@ -104,7 +107,7 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", size = 8),
           legend.position = "top")
   p3 <- ggplot(met_data) +
-    geom_line(aes(x=timestamp, y=batt_v_avg, color = "Battery avg")) +
+    geom_line(aes(x=timestamp, y=battv_avg, color = "Battery avg")) +
     scale_x_datetime()+
     labs(title ="MAT2006-Blk3",
          x = "Date",

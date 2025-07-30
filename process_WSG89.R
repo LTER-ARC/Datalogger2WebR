@@ -72,9 +72,9 @@ if(html_file_date < dat_file_date) {
   #****************************************************************************************************
   
   p1 <- ggplot(met_data) +
-    geom_line(aes(x=timestamp, y=ct_airtemp_avg, color = "3M Air")) +
+    geom_line(aes(x=timestamp, y=ctairtemp_avg, color = "3M Air")) +
     geom_line(aes(x=timestamp, y=ct_107air_avg,color = "3M Air TC")) +
-    geom_line(aes(x=timestamp, y=gh_airtemp_avg, color ="Greenhouse Air")) +
+    geom_line(aes(x=timestamp, y=ghairtemp_avg, color ="Greenhouse Air")) +
     geom_hline(aes(yintercept = 0))+
     scale_x_datetime(expand = expansion(mult = c(.01, .01))) +
     scale_color_manual(values = c(

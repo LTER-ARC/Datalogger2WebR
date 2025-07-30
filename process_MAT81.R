@@ -90,7 +90,7 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", size = 8),
           legend.position = "top")
   p3 <- ggplot(met_soil_data) +
-    geom_line(aes(x=timestamp, y=batt_v_min, color = "Battery avg")) +
+    geom_line(aes(x=timestamp, y=battv_min, color = "Battery avg")) +
     scale_x_datetime()+
     labs(title ="MAT1981",
          x = "Date",
@@ -215,3 +215,4 @@ if(html_file_date < dat_file_date) {
   # htmlwidgets::saveWidget(p, "mat1981soil.html", title = "MAT1981 Soil")
   
 }
+

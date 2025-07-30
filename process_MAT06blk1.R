@@ -77,7 +77,7 @@ if(html_file_date < dat_file_date) {
     filter(timestamp > max(timestamp) %m-% months(6))
   
   met_data_blk2 <-  logger_data[[4]] %>%
-    rename(gh_air_avg = gh_air_tc_avg, gh_rh = ghrh) %>% 
+    rename(gh_air_avg = ghairtc_avg, gh_rh = ghrh) %>% 
     clean_names() %>%
     arrange(timestamp)%>%
     filter(timestamp > max(timestamp) %m-% months(6))
@@ -124,7 +124,7 @@ if(html_file_date < dat_file_date) {
     theme(plot.title = element_text(hjust = 0.7),
           axis.title.y = element_markdown(color = "black", size = 8))
   p3 <- ggplot(met_data) +
-    geom_line(aes(x=timestamp, y=batt_v_min, color = "Battery min")) +
+    geom_line(aes(x=timestamp, y=battv_min, color = "Battery min")) +
     scale_x_datetime()+
     labs(title ="TMAT2006-Blk1 Battery",
          x = "Date",
@@ -167,7 +167,7 @@ if(html_file_date < dat_file_date) {
           axis.title.y = element_markdown(color = "black", size = 8))
   
   p3_blk2 <- ggplot(met_data_blk2) +
-    geom_line(aes(x=timestamp, y=batt_v_min, color = "Battery min")) +
+    geom_line(aes(x=timestamp, y=battv_min, color = "Battery min")) +
     scale_x_datetime()+
     labs(title ="TMAT2006-Blk2 Battery",
          x = "Date",
