@@ -16,20 +16,18 @@ packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
+
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
+# Check if script is running on the website. If so setwd else use the project wd
+logger_dir <- "/arc_met/current"
 
 #-------------------------------------------------------------------------
 
-tabl_1 <-  "./current/Heath_CR10XPB_6_Met_half_hr.dat"
-tabl_2 <-  "./current/Heath_CR10XPB_6_Soil_hourly.dat"
+tabl_1 <- paste0(logger_dir, "/Heath_CR10XPB_6_Met_half_hr.dat")
+tabl_2 <-  paste0(logger_dir,"/Heath_CR10XPB_6_Soil_hourly.dat")
 logger_file <- c(tabl_1,tabl_2)
 
 # Check if there is new data to process. If not then skip running the code
@@ -61,7 +59,7 @@ if(html_file_date < dat_file_date) {
     clean_names() %>%
     arrange(timestamp)%>%
     mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
-    mutate(cs616_c_tvw_avg = cs616_c_tvw_avg*100,cs616_n_pvw_avg = cs616_n_pvw_avg*100) %>% 
+    mutate(cs616_ctvw_avg = cs616_ctvw_avg*100,cs616_npvw_avg = cs616_npvw_avg*100) %>% 
     filter(timestamp > max(timestamp) %m-% months(6))
   
   # set the min and max for the initial x axis display in ggplotly
