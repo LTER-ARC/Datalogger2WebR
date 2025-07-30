@@ -16,20 +16,15 @@ packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
-
+logger_dir <- "/arc_met/current"
 #-------------------------------------------------------------------------
 
-tabl_1 <-  "./current/WetSedge_Met_Hourly.dat"
-tabl_2 <-  "./current/WetSedge_Soil.dat"
+tabl_1 <-  paste0(logger_dir, "/WetSedge_Met_Hourly.dat")
+tabl_2 <-  paste0(logger_dir, "/WetSedge_Soil.dat")
 logger_file <- c(tabl_1,tabl_2)
 
 #-------------------------------------------------------------------------

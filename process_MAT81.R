@@ -26,9 +26,11 @@ if (dir.exists(web_logger_dir)) {
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
+logger_dir <- "/arc_met/current"
+#-------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------
-logger_file <-  "./current/CR1000_HistoricSoil_mean.dat"
+logger_file <-  paste0(logger_dir, "/CR1000_HistoricSoil_mean.dat")
 #-------------------------------------------------------------------------
 
 # Check if there are new data to process. If not then skip running the code

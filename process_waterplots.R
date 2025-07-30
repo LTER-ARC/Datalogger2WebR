@@ -17,20 +17,15 @@ packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
-
+logger_dir <- "/arc_met/current"
 #-------------------------------------------------------------------------
 
-tabl_1 <-  "./current/WaterPlots_CR10XPB_4_Table1.dat"
-tabl_2 <-  "./current/WaterPlots_CR10XPB_4_Table2.dat"
+tabl_1 <-  paste0(logger_dir, "/WaterPlots_CR10XPB_4_Table1.dat")
+tabl_2 <-  paste0(logger_dir, "/WaterPlots_CR10XPB_4_Table2.dat")
 logger_file <- c(tabl_1,tabl_2)
 
 #-------------------------------------------------------------------------
@@ -118,7 +113,7 @@ if(html_file_date < dat_file_date) {
           legend.position = "top",
           axis.title.y = element_markdown(color = "black", linewidth = 8))
   
-  sp2 <- moisture_data %>% select(timestamp,contains("wat_cont")) %>%
+  sp2 <- moisture_data %>% select(timestamp,contains("watcont")) %>%
     gather("key", "value", -timestamp) %>%
     ggplot(data=., aes(x=timestamp, y = value,color=key)) +
     scale_x_datetime()+

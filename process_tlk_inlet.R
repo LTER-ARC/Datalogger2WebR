@@ -80,7 +80,7 @@ if(html_file_date < dat_file_date) {
     theme_bw() 
   
   p3 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=cond_u_s_avg, color = "Conductivity")) +
+    geom_line(aes(x=timestamp, y=cond_us_avg, color = "Conductivity")) +
     scale_x_datetime()+
     labs(title ="Toolik Inlet Conductivity",
          x = "Date",
@@ -90,7 +90,7 @@ if(html_file_date < dat_file_date) {
     theme_bw() 
   
   p4 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=batt_v_min, color = "Battery")) +
+    geom_line(aes(x=timestamp, y=battv_min, color = "Battery")) +
     scale_x_datetime()+
     labs(title ="Toolik Inlet",
          x = "Date",
@@ -163,6 +163,6 @@ if(html_file_date < dat_file_date) {
   p <- subplot(p1_p,p2_p,p3_p,p4_p, nrows=4, shareX = TRUE,titleY = T,
                heights = c(.3,.3,.3,.1))%>% 
     layout(title = 'Toolik Inlet Station',margin = 0.01)
-  
+  saveRDS(p,"toolik_inlet_station.rds") 
   htmlwidgets::saveWidget(p, html_tabl_1,title = "Toolik Inlet")
 }

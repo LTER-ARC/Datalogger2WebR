@@ -18,11 +18,7 @@ packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
+
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
@@ -38,8 +34,11 @@ flattenlist <- function(x){
 }
 
 #-------------------------------------------------------------------------
+# Check if script is running on the website. If so setwd else use the project wd
+logger_dir <- "/arc_met/current"
 
-logger_file <-  "./current/CR3000_Imn_Radiation_mean.dat"
+#-------------------------------------------------------------------------
+logger_file <-  paste0(logger_dir, "/CR3000_Imn_Radiation_mean.dat")
 dat_file_date <- file.mtime(logger_file)
 html_file_date <-file.mtime("./imnav_rad.html")
 if(is.na(html_file_date)) {html_file_date <-0}

@@ -17,19 +17,17 @@ packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
+
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
+# Check if script is running on the website. If so setwd else use the project wd
+logger_dir <- "/arc_met/current"
 
 #-------------------------------------------------------------------------
 
-tabl_1 <-  "./current/CR510_Repeater.dat"
+tabl_1 <-  paste0(logger_dir,"/CR510_Repeater.dat")
 html_tabl_1 <- "./Itigaknit-Repeater.html"
 logger_file <- c(tabl_1)
 #-------------------------------------------------------------------------
