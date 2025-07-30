@@ -56,10 +56,10 @@ if(html_file_date < dat_file_date) {
   
   #Plots
   
-  attach(logger_data)
+ # attach(logger_data)
   
   p1 <- ggplot(logger_data) +
-    geom_line(aes(x=timestamp, y=air_tc_avg, color = "Air Temperature")) +
+    geom_line(aes(x=timestamp, y=airtc_avg, color = "Air Temperature")) +
     scale_x_datetime()+
     labs(title ="Air Temperature",
          x = "Date",
@@ -89,7 +89,7 @@ if(html_file_date < dat_file_date) {
     geom_line(color="red",linewidth=.1)+
     theme(axis.title.y = element_markdown(color = "black", size = 8))
   
-  wp2 <- logger_data %>% select(timestamp,wind_dir_d1_wvt) %>%
+  wp2 <- logger_data %>% select(timestamp,winddir_d1_wvt) %>%
     gather("key", "value", -timestamp)%>%
     ggplot(data=.,aes(x=timestamp, y = value)) +
     scale_x_datetime()+
@@ -214,8 +214,12 @@ if(html_file_date < dat_file_date) {
     partial_bundle() %>% 
   layout(title = 'Toolik Float T-chain',margin = 0.01)
   wgp <- toWebGL(tp1_p)
-  p <- toWebGL(p)
+  # p <- toWebGL(p) # The rangeslider is not show the traces when converting to WebGL
   
+  #save as r file
+  
+  saveRDS(tp1_p,"toolik_lake_station_Tchain.rds") 
   saveWidget(p, html_tabl_1,title = "Toolik Lake Met",  selfcontained = F, libdir = "lib")
   saveWidget(wgp, html_tabl_2, title = "T-Chain", selfcontained = F, libdir = "lib")
 }
+

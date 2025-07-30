@@ -156,7 +156,7 @@ if(html_file_date < dat_file_date) {
     geom_line(color="red",linewidth=.1)+
     theme(axis.title.y = element_markdown(color = "black", size = 8))
   
-  wp2 <- met_data %>% select(timestamp,wind_dir_d1_wvt) %>%
+  wp2 <- met_data %>% select(timestamp,winddir_d1_wvt) %>%
     gather("key", "value", -timestamp)%>%
     ggplot(data=.,aes(x=timestamp, y = value)) +
     scale_x_datetime()+
@@ -203,7 +203,7 @@ if(html_file_date < dat_file_date) {
     geom_line(aes(color = key),linewidth=.1)
   
   sp3 <-  ggplot(soil_data) +
-    geom_line(aes(x=timestamp, y=batt_v_min, color = "Battery min")) +
+    geom_line(aes(x=timestamp, y=battv_min, color = "Battery min")) +
     scale_x_datetime()+
     labs(title ="MAT89",
          x = "Date",

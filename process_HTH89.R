@@ -61,7 +61,7 @@ if(html_file_date < dat_file_date) {
     clean_names() %>%
     arrange(timestamp)%>%
     mutate(across(where(is.numeric), ~na_if(.,-7999))) %>%
-    mutate(cs616_c_tvw_avg = cs616_c_tvw_avg*100,cs616_n_pvw_avg = cs616_n_pvw_avg*100) %>% 
+    mutate(cs616_ctvw_avg = cs616_ctvw_avg*100,cs616_npvw_avg = cs616_npvw_avg*100) %>% 
     filter(timestamp > max(timestamp) %m-% months(6))
   
   # set the min and max for the initial x axis display in ggplotly
