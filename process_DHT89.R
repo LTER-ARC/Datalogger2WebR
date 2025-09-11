@@ -11,8 +11,8 @@
 ## Revised
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
@@ -21,7 +21,7 @@ invisible(lapply(packages, library, character.only = TRUE))
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
-# Check if script is running on the website. If so setwd else use the project wd
+# 
 logger_dir <- "/arc_met/current"
 
 #-------------------------------------------------------------------------
@@ -32,15 +32,15 @@ logger_file <- c(tabl_1,tabl_2)
 
 # Check if there is new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
-html_file_date <-file.mtime("./heathsoil.html")
+html_file_date <-file.mtime("./DHT89soil.html")
 if(is.na(html_file_date)) {html_file_date <-0}
 if(html_file_date < dat_file_date) {
   
   #logger_file <- tabl_1
   #****************************************************************************************************
-  # MAT06 logger data are in CSI TOA5 data files
+  # DHT06 logger data are in array data files
   # importCSdata will read in multiple files and create a list of data frames for each file
-  # For ploting data frames of the met and soil data are extracted and limited to 4 months
+  # Plotting data are extracted and limited to 4 months
   #****************************************************************************************************
     
   logger_data<- logger_file %>% map(function(x) importCSdata(x))
@@ -165,7 +165,7 @@ if(html_file_date < dat_file_date) {
   
   p <- subplot(p2_p,p1_p,p3_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.7,.1),which_layout = 2)
   #p <- subplot(p3_p,p2_p,p1_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.2,.6))
-  htmlwidgets::saveWidget(p, "heathmet.html",title = "Heath89 Met")
+  htmlwidgets::saveWidget(p, "DHT89met.html",title = "Heath89 Met")
   
   #Soil
   sp1 <- soil_data %>% select(timestamp,contains(c("tc","np"))) %>%
@@ -219,7 +219,7 @@ if(html_file_date < dat_file_date) {
     partial_bundle()
   p_soil <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T)%>% 
     layout(title = 'Heath Soil Temperature and Moisture',margin = 0.01)
-htmlwidgets::saveWidget(p_soil, "heathsoil.html", title = "Heath89 soil")
+htmlwidgets::saveWidget(p_soil, "DHT89soil.html", title = "Dry Heath Tundra soil")
 
 }
 
