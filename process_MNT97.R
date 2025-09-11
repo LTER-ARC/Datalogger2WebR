@@ -11,8 +11,8 @@
 ## Revised
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
@@ -39,7 +39,7 @@ if(html_file_date < dat_file_date) {
     #****************************************************************************************************
     # MNT97 logger data are in array data files
     # importCSdata will read in multiple files and create a list of data frames for each file
-    # For ploting data frames of the met and soil data are extracted and limited to 4 months
+    # Plotting data are extracted and limited to 4 months
     #****************************************************************************************************
       
     logger_data<- logger_file %>% map(function(x) importCSdata(x))
@@ -160,7 +160,7 @@ if(html_file_date < dat_file_date) {
     p <- subplot(p2_p,p1_p,p3_p, nrows=3, shareX = TRUE,titleY = T,
                  heights = c(.4,.4,.2),which_layout = 2) %>% 
       layout(title = 'MNT97 Met',margin = 0.01)
-    htmlwidgets::saveWidget(p, "mnt97met.html",title = "MNT97 Met")
+    htmlwidgets::saveWidget(p, "MNT97met.html",title = "MNT97 Met")
     
     #Soil
     sp1 <- soil_data %>% select(timestamp,contains(c("ct","np"))) %>%
@@ -200,7 +200,7 @@ if(html_file_date < dat_file_date) {
       partial_bundle()
     p <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T) %>% 
       layout(title = 'MNT97 Soil',margin = 0.01)
-    htmlwidgets::saveWidget(p, "mntsoil.html", title = "MNT97 soil")
+    htmlwidgets::saveWidget(p, "MNT97soil.html", title = "MNT97 soil")
     
     
 }

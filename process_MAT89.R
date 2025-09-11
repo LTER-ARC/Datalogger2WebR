@@ -12,33 +12,27 @@
 ## 2023-07-06 Took out the gh and shade met data plots. They were discontinued.  Jim L
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
-
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
 #-------------------------------------------------------------------------
-
+logger_dir <- "/arc_met/current"
 #-------------------------------------------------------------------------
 
-tabl_1 <-  "./current/MAT89_Half_Hourly.dat"
-tabl_2 <-  "./current/MAT89_Soil_Temp.dat"
+tabl_1 <- paste0(logger_dir,"/MAT89_Half_Hourly.dat")
+tabl_2 <- paste0(logger_dir,"/MAT89_Soil_Temp.dat")
 logger_file <- c(tabl_1,tabl_2)
 
 #-------------------------------------------------------------------------
 
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
-html_file_date <-file.mtime("./mat89logger.html")
+html_file_date <-file.mtime("./MAT89met.html")
 if(is.na(html_file_date)) {html_file_date <-0}
 if(html_file_date < dat_file_date) {
     
@@ -46,7 +40,7 @@ if(html_file_date < dat_file_date) {
   #****************************************************************************************************
   # MAT89 logger data are in CSI TOA5 data files
   # importCSdata will read in multiple files and create a list of data frames for each file
-  # For ploting data frames of the met and soil data are extracted and limited to 4 months
+  # Plotting data are extracted and limited to 4 months
   #****************************************************************************************************
     
   logger_data<- logger_file %>% map(function(x) importCSdata(x))
@@ -175,7 +169,7 @@ if(html_file_date < dat_file_date) {
     layout(title = 'MAT89 Met Data',margin = 0.01)
   #p <- subplot(p3_p,p2_p,p1_p, nrows=3, shareX = TRUE,titleY = T,heights = c(.2,.2,.6))
  # p <- toWebGL(p)
-  htmlwidgets::saveWidget(p, "mat89logger.html", title = "MAT89 Met Data")
+  htmlwidgets::saveWidget(p, "MAT89met.html", title = "MAT89 Met Data")
   
   #Soil
   sp1 <- soil_data %>% select(timestamp,starts_with("ct")) %>%
@@ -232,7 +226,6 @@ if(html_file_date < dat_file_date) {
   p <- subplot(sp3_p,sp1_p,sp2_p, nrows=3, shareX = TRUE,titleY = T,
                heights = c(.20,.40,.40))%>% 
     layout(title = 'MAT89 Soil Temperatures',margin = 0.01)
-  #p <- toWebGL(p)
-  htmlwidgets::saveWidget(p, "mat89soil.html", title = "MAT89 Soil Temperatures")
+  htmlwidgets::saveWidget(p, "MAT89soil.html", title = "MAT89 Soil Temperatures")
   
 }

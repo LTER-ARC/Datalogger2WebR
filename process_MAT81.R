@@ -1,5 +1,5 @@
 ## Read data from Campbell Sci logger files.  
-##  MAT1989 logger
+##  MAT81 logger
 ## For table loggers, i.e. TOA5 files
 ## column names are in the 2nd row of the file
 ## For MIXED ARRAY DATA FILES**(Older array data without variable names.)
@@ -11,17 +11,12 @@
 ## Revised
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
 
-# Check if script is running on the website. If so setwd else use the project wd
-web_logger_dir <- "/www/arcdeims7/sites/default/files/data/datalogger"
-if (dir.exists(web_logger_dir)) {
-  setwd(web_logger_dir)
-}
 # Functions --------------------------------------------------------------
 source("importCSdata.r")
 
@@ -35,7 +30,7 @@ logger_file <-  paste0(logger_dir, "/CR1000_HistoricSoil_mean.dat")
 
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
-html_file_date <-file.mtime("./mat1981met.html")
+html_file_date <-file.mtime("./MAT81met.html")
 if(is.na(html_file_date)) {html_file_date <-0}
 if(html_file_date < dat_file_date) {
   
@@ -43,7 +38,7 @@ if(html_file_date < dat_file_date) {
   #****************************************************************************************************
   # MAT06 logger data are in CSI TOA5 data files
   # importCSdata will read in multiple files and create a list of data frames for each file
-  # For ploting data frames of the met and soil data are extracted and limited to 4 months
+  # Plotting data are extracted and limited to 4 months
   #****************************************************************************************************
     
   logger_data<- logger_file %>% map(function(x) importCSdata(x))
@@ -70,7 +65,7 @@ if(html_file_date < dat_file_date) {
     scale_x_datetime(expand = expansion(mult = c(.01, .01))) +
     scale_color_manual(values = c(
       'control' = 'blue')) +
-    labs(title = "MAT1981 Met Data",
+    labs(title = "MAT81 Met Data",
          subtitle = "Control",
          x = "Date",
          y = "Degrees Celsius",
@@ -84,7 +79,7 @@ if(html_file_date < dat_file_date) {
     scale_x_datetime()+
     scale_color_manual(values = c(
       "control RH" = "blue")) +
-    labs(title = "MAT1981 RH",
+    labs(title = "MAT81 RH",
          x = "Date",
          y = "Relative Humidity (%)",
          color = '')+
@@ -94,7 +89,7 @@ if(html_file_date < dat_file_date) {
   p3 <- ggplot(met_soil_data) +
     geom_line(aes(x=timestamp, y=battv_min, color = "Battery avg")) +
     scale_x_datetime()+
-    labs(title ="MAT1981",
+    labs(title ="MAT81",
          x = "Date",
          y = "volts",
          color = '')+
@@ -163,9 +158,9 @@ if(html_file_date < dat_file_date) {
   
   p <- subplot(p2_p,p1_p,p3_p, nrows=3, shareX = TRUE,titleY = T,
                heights = c(.20,.6,.2), which_layout = 2) %>% 
-    layout(title = 'MAT1981 CT Air/Rh',margin = 0.01)
+    layout(title = 'MAT81 CT Air/Rh',margin = 0.01)
     
-  htmlwidgets::saveWidget(p, "mat1981met.html", title = "MAT1981")
+  htmlwidgets::saveWidget(p, "MAT81met.html", title = "MAT81")
   
   #Soil
   sp1 <- met_soil_data %>% select(timestamp,intersect(contains("avg"),contains("cm"))) %>%
@@ -208,13 +203,13 @@ if(html_file_date < dat_file_date) {
       annotations = anno_agr) %>% 
     partial_bundle()
   
-  htmlwidgets::saveWidget(sp1_p,"mat1981soiltemp.html",title = "MAT81 Soil Temperatures")
-  htmlwidgets::saveWidget(sp2_p,"mat1981soilmoist.html",title = "MAT81 Soil Moisture")
+  htmlwidgets::saveWidget(sp1_p,"MAT81soiltemp.html",title = "MAT81 Soil Temperatures")
+  htmlwidgets::saveWidget(sp2_p,"MAT81soilmoist.html",title = "MAT81 Soil Moisture")
   # 
   # p <- subplot(sp1_p,sp2_p, nrows=2, shareX = TRUE,titleY = T,
   #              heights = c(.5,.5), which_layout = 2) %>% 
-  #   layout(title = 'MAT1981 Soil Temperature',margin = 0.01)
-  # htmlwidgets::saveWidget(p, "mat1981soil.html", title = "MAT1981 Soil")
+  #   layout(title = 'MAT81 Soil Temperature',margin = 0.01)
+  # htmlwidgets::saveWidget(p, "mat81soil.html", title = "MAT1981 Soil")
   
 }
 

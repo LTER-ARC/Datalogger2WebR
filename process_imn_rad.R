@@ -11,8 +11,8 @@
 ## Revised
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 
 
 # Packages loading

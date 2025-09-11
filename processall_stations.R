@@ -1,7 +1,7 @@
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse","rstudioapi")
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
@@ -10,12 +10,14 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 source("importCSdata.r")
 
-
+#rmarkdown::find_pandoc()
 # Process r scripts
 
 list.files(pattern = "process_",full.names = TRUE) %>% 
-  stringr::str_subset(., "MAT06|lake|inlet", negate = TRUE) %>% 
+  #Process only a subset
+  stringr::str_subset(., "MAT06|lake|inlet|waterplots", negate = TRUE) %>% 
   map(function(x) {
     print(x)
     source(x)
 })
+

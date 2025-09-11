@@ -38,9 +38,9 @@ if(html_file_date < dat_file_date) {
   
    
   #****************************************************************************************************
-  # MAT06 logger data are in CSI TOA5 data files
+  # Waterplots logger data are in array data files
   # importCSdata will read in multiple files and create a list of data frames for each file
-  # For ploting data frames of the met and soil data are extracted and limited to 4 months
+  # Plotting data are limited to 4 months
   #****************************************************************************************************
     
   logger_data<- logger_file %>% map(function(x) importCSdata(x))

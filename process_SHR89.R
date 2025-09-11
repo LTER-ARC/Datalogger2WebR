@@ -11,8 +11,8 @@
 ## Revised
 
 # REQUIRED PACKAGES ------------------------------------------------------
-packages <- c("ggplot2","ggtext","htmlwidgets","janitor","lubridate",
-              "plotly","readxl","stringr","tidyverse")
+packages <- c("tidyverse","ggtext","htmlwidgets","janitor",
+              "plotly")
 
 # Packages loading
 invisible(lapply(packages, library, character.only = TRUE))
@@ -32,14 +32,14 @@ logger_file <- c(tabl_1)
 
 # Check if there are new data to process. If not then skip running the code
 dat_file_date <- file.mtime(logger_file[1])
-html_file_date <-file.mtime("./shr89met.html")
+html_file_date <-file.mtime("./SHR89met.html")
 if(is.na(html_file_date)) {html_file_date <-0} #Check if there is a file
 if(html_file_date < dat_file_date) {
       
     #****************************************************************************************************
     # WetSedge logger data are in CSI TOA5 data files
     # importCSdata will read in multiple files and create a list of data frames for each file
-    # For ploting data frames of the met and soil data are extracted and limited to 4 months
+    # Plotting data are extracted and limited to 4 months
     #****************************************************************************************************
       
     logger_data<- logger_file %>% map(function(x) importCSdata(x))
@@ -161,7 +161,7 @@ if(html_file_date < dat_file_date) {
       layout(title = 'Shrub1981 CT GH SH Air/Rh',margin = 0.01)
     
     
-    htmlwidgets::saveWidget(p, "shr89met.html",title = "Shrub89 Met")
+    htmlwidgets::saveWidget(p, "SHR89met.html",title = "Shrub89 Met")
     
     #Soil
     soil_data <- met_soil_data %>% select(timestamp,contains(c("cm","sur"))) 
@@ -233,7 +233,7 @@ if(html_file_date < dat_file_date) {
     p <- subplot(sp1_p,sp2_p,sp3_p, nrows=3, shareX = TRUE,titleY = T,which_layout = 1) %>% 
       layout(title = 'Shrub89 Soil Temperatures',margin = 0.01)
     
-    htmlwidgets::saveWidget(p, "shr89soil.html", title = "Shrub89 soil")
+    htmlwidgets::saveWidget(p, "SHR89soil.html", title = "Shrub89 soil")
 
 }
 
